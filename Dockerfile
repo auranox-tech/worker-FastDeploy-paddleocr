@@ -1,36 +1,29 @@
-# ========================= 使用百度基础镜像构建新的FD环境 =========================
-# FROM nvidia/cuda:12.6.0-base-ubuntu22.04 
+FROM runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04
 
-# RUN apt-get update -y \
-#     && apt-get install -y python3-pip
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    poppler-utils \
+    && rm -rf /var/lib/apt/lists/*
 
-# RUN ldconfig /usr/local/cuda-12.6/compat/
+# Install PaddlePaddle GPU 3.2.1 from official repo (CUDA 12.6 compatible with 12.4)
+RUN pip install paddlepaddle-gpu==3.2.1 -i https://www.paddlepaddle.org.cn/packages/stable/cu126/
 
-# # Install Python dependencies
-# COPY builder/requirements.txt /requirements.txt
-# RUN --mount=type=cache,target=/root/.cache/pip \
-#     python3 -m pip install --upgrade pip && \
-#     python3 -m pip install paddlepaddle-gpu==3.2.2 -i https://www.paddlepaddle.org.cn/packages/stable/cu126/ && \
-#     python3 -m pip install fastdeploy-gpu==2.3.0 -i https://www.paddlepaddle.org.cn/packages/stable/fastdeploy-gpu-80_90/ 
+# Install PaddleX (latest 3.3.11) and PaddleOCR with doc-parser
+RUN pip install --no-cache-dir \
+    paddlex==3.3.11 \
+    "paddleocr[doc-parser]" \
+    runpod
 
-# # 避免交互 & 打印不缓冲
-# ENV DEBIAN_FRONTEND=noninteractive \
-#     PYTHONUNBUFFERED=1 \
-#     PIP_DISABLE_PIP_VERSION_CHECK=1
+# Install special safetensors for PaddleOCR-VL
+RUN pip install https://paddle-whl.bj.bcebos.com/nightly/cu126/safetensors/safetensors-0.6.2.dev0-cp38-abi3-linux_x86_64.whl
 
-# # 可选：加一些系统工具（调试日志/证书等）
-# RUN apt-get update && apt-get install -y --no-install-recommends \
-#     ca-certificates curl tini && \
-#     rm -rf /var/lib/apt/lists/*
+# Note: Model will be downloaded on first request (cold start)
+# Cannot pre-download during build as CUDA is not available
 
-# # install runpod（Serverless SDK）
-# RUN pip install --no-cache-dir runpod
+# Copy handler
+COPY handler.py /handler.py
 
-
-# ========================= 使用自己预先构建的镜像 =========================
-FROM xiaoluo888/worker-fastdeploy:latest
-
-EXPOSE 8180
-
-ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["python3", "/src/handler.py"]
+# Run the handler
+CMD ["python", "/handler.py"]
