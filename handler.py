@@ -18,7 +18,8 @@ def load_model():
         print("Model loaded successfully!")
     return pipeline
 
-
+# Load model and run inference
+model = load_model()
 def handler(event):
     """
     RunPod serverless handler for PaddleOCR-VL.
@@ -52,8 +53,7 @@ def handler(event):
             temp_path = f.name
 
         try:
-            # Load model and run inference
-            model = load_model()
+
             results = list(model.predict(temp_path))
 
             # Process results into JSON-serializable format
