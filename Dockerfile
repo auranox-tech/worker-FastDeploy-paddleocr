@@ -64,59 +64,60 @@ RUN mkdir -p $TRANSFORMERS_CACHE
 
 # ---- offline model env ----
 ENV BUILD_FOR_OFFLINE=true
-RUN mkdir -p "$PADDLEX_MODEL_HOME/fonts" "$PADDLEX_MODEL_HOME" && \
+RUN mkdir -p "$PADDLEX_MODEL_HOME" "$PADDLEX_HOME/fonts" && \
     bash -euxo pipefail -c '
-    if [[ "${BUILD_FOR_OFFLINE,,}" != "true" ]]; then
-        echo "Offline build disabled, skipping."
-        exit 0
-    fi
+if [[ "${BUILD_FOR_OFFLINE,,}" != "true" ]]; then
+  echo "Offline build disabled, skipping."
+  exit 0
+fi
 
-    declare -A MODELS=(
-      ["UVDoc"]="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/UVDoc_infer.tar"
-      ["PP-LCNet_x1_0_doc_ori"]="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-LCNet_x1_0_doc_ori_infer.tar"
-      ["PP-DocLayoutV2"]="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-DocLayoutV2_infer.tar"
-      ["PaddleOCR-VL-0.9B"]="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PaddleOCR-VL_infer.tar"
-    )
+declare -A MODELS=(
+  ["UVDoc"]="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/UVDoc_infer.tar"
+  ["PP-LCNet_x1_0_doc_ori"]="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-LCNet_x1_0_doc_ori_infer.tar"
+  ["PP-DocLayoutV2"]="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-DocLayoutV2_infer.tar"
+  ["PaddleOCR-VL-0.9B"]="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PaddleOCR-VL_infer.tar"
+)
 
-    for MODEL_NAME in "${!MODELS[@]}"; do
-        URL="${MODELS[$MODEL_NAME]}"
-        TAR_PATH="$PADDLEX_MODEL_HOME/${MODEL_NAME}.tar"
-        MODEL_DIR="$PADDLEX_MODEL_HOME/${MODEL_NAME}"
+for MODEL_NAME in "${!MODELS[@]}"; do
+  URL="${MODELS[$MODEL_NAME]}"
+  TAR_PATH="$PADDLEX_MODEL_HOME/${MODEL_NAME}.tar"
+  MODEL_DIR="$PADDLEX_MODEL_HOME/${MODEL_NAME}"
 
-        if [[ -d "$MODEL_DIR" ]]; then
-            echo "✓ $MODEL_NAME already exists, skipping."
-            continue
-        fi
+  if [[ -d "$MODEL_DIR" ]]; then
+    echo "✓ $MODEL_NAME already exists, skipping."
+    continue
+  fi
 
-        echo "▶ Downloading $MODEL_NAME"
-        wget -q "$URL" -O "$TAR_PATH"
+  echo "▶ Downloading $MODEL_NAME"
+  wget -q "$URL" -O "$TAR_PATH"
 
-        echo "▶ Extracting $MODEL_NAME"
-        tar -xf "$TAR_PATH" -C "$PADDLEX_MODEL_HOME"
+  echo "▶ Extracting $MODEL_NAME"
+  tar -xf "$TAR_PATH" -C "$PADDLEX_MODEL_HOME"
 
-        FILENAME="$(basename "$URL")"
-        EXTRACTED_DIR="${FILENAME%.tar}"
+  FILENAME="$(basename "$URL")"
+  EXTRACTED_DIR="${FILENAME%.tar}"
 
-        if [[ -d "$PADDLEX_MODEL_HOME/$EXTRACTED_DIR" ]]; then
-            mv "$PADDLEX_MODEL_HOME/$EXTRACTED_DIR" "$MODEL_DIR"
-        else
-            ROOT_DIR="$(tar -tf "$TAR_PATH" | head -n1 | cut -d/ -f1)"
-            mv "$PADDLEX_MODEL_HOME/$ROOT_DIR" "$MODEL_DIR"
-        fi
+  if [[ -d "$PADDLEX_MODEL_HOME/$EXTRACTED_DIR" ]]; then
+    mv "$PADDLEX_MODEL_HOME/$EXTRACTED_DIR" "$MODEL_DIR"
+  else
+    ROOT_DIR="$(tar -tf "$TAR_PATH" | head -n1 | cut -d/ -f1)"
+    mv "$PADDLEX_MODEL_HOME/$ROOT_DIR" "$MODEL_DIR"
+  fi
 
-        rm -f "$TAR_PATH"
-    done
+  rm -f "$TAR_PATH"
+done
 
-    FONT_URL="https://paddle-model-ecology.bj.bcebos.com/paddlex/PaddleX3.0/fonts/PingFang-SC-Regular.ttf"
-    FONT_PATH="$PADDLEX_HOME/fonts/PingFang-SC-Regular.ttf"
+FONT_URL="https://paddle-model-ecology.bj.bcebos.com/paddlex/PaddleX3.0/fonts/PingFang-SC-Regular.ttf"
+FONT_PATH="$PADDLEX_HOME/fonts/PingFang-SC-Regular.ttf"
 
-    if [[ ! -f "$FONT_PATH" ]]; then
-        echo "▶ Downloading font"
-        wget -q "$FONT_URL" -O "$FONT_PATH"
-    fi
+if [[ ! -f "$FONT_PATH" ]]; then
+  echo "▶ Downloading font"
+  wget -q "$FONT_URL" -O "$FONT_PATH"
+fi
 
-    echo "✅ Offline PaddleOCR-VL models ready."
-    '
+echo "✅ Offline PaddleOCR-VL models ready."
+'
+
 
 # Copy handler
 COPY /src/handler.py /src/handler.py
