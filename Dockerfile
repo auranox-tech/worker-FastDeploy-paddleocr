@@ -24,8 +24,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libxrender1 \
     && rm -rf /var/lib/apt/lists/*
 
-# ---- upgrade pip ----
-RUN python3 -m pip install --upgrade pip
+# ---- python tooling ----
+RUN pip install --upgrade pip setuptools wheel
 
 # Install Python dependencies
 COPY builder/requirements.txt /requirements.txt
@@ -42,9 +42,11 @@ RUN python3 -m pip install --no-cache-dir "paddleocr[doc-parser]" "paddlex==3.3.
 # ---- install safetensors for CUDA 12.6 ----
 RUN python3 -m pip install --no-cache-dir https://paddle-whl.bj.bcebos.com/nightly/cu126/safetensors/safetensors-0.6.2.dev0-cp38-abi3-linux_x86_64.whl
 
+ENV DISABLE_MODEL_SOURCE_CHECK=True
 
 # ---- install PaddleX serving ----
-RUN paddlex --install serving
+RUN paddlex --install serving || (pip list && python -c "import paddlex; print(paddlex.__version__)" && exit 1)
+
 
 # ---- environment variables for offline cache ----
 ENV HOME=/home/paddleocr
