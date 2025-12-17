@@ -1,0 +1,48 @@
+{
+  "title": "PaddleOCR-VL",
+  "description": "Advanced OCR model capable of extracting text from images and PDF documents using PaddleOCR technology. Supports both image and PDF inputs with accurate text recognition and layout analysis.",
+  "type": "serverless",
+  "category": "computer_vision",
+  "iconUrl": "https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/main/doc/imgs/logo.png",
+  "config": {
+    "runsOn": "GPU",
+    "containerDiskInGb": 20,
+    "gpuIds": "L4,L40,RTXA4000,RTXA5000,RTXA6000,RTX3090,RTX4090,H100,A100,V100,2080TI,1080TI,T4",
+    "gpuCount": 1,
+    "allowedCudaVersions": [
+      "12.7",
+      "12.6",
+      "12.5",
+      "12.4",
+      "12.3",
+      "12.2",
+      "12.1"
+    ],
+    "supportedInputs": {
+      "file_base64": {
+        "type": "string",
+        "description": "Base64-encoded file content (supports images and PDFs)",
+        "required": true
+      },
+      "file_type": {
+        "type": "string",
+        "description": "Type of input file ('image' or 'pdf')",
+        "default": "image",
+        "enum": ["image", "pdf"]
+      }
+    },
+    "outputExample": {
+      "status": "success",
+      "num_pages": 1,
+      "pages": [
+        {
+          "page_number": 1,
+          "result": {
+            "text": "Extracted text from the document",
+            "layout": "Document layout information"
+          }
+        }
+      ]
+    }
+  }
+}

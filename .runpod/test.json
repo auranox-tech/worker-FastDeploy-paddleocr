@@ -1,0 +1,33 @@
+{
+  "tests": [
+    {
+      "name": "ocr_image_test",
+      "input": {
+        "file_base64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+        "file_type": "image"
+      },
+      "timeout": 60000
+    },
+    {
+      "name": "ocr_pdf_test",
+      "input": {
+        "file_base64": "JVBERi0xLjQKJcOkw7zDtsOyw7HDvMO9w7vDv8PDw8TDxsPHw8jDycPKw83DzsPTw9bD2sPew+LD48Pkw+fD6MPrw+zD7cPvw/DD8sP0w/bD+MP5w/rD/MQBAA==",
+        "file_type": "pdf"
+      },
+      "timeout": 120000
+    }
+  ],
+  "config": {
+    "gpuTypeId": "NVIDIA GeForce RTX 4090",
+    "gpuCount": 1,
+    "allowedCudaVersions": [
+      "12.7",
+      "12.6",
+      "12.5",
+      "12.4",
+      "12.3",
+      "12.2",
+      "12.1"
+    ]
+  }
+}
