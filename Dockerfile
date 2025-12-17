@@ -70,4 +70,8 @@ RUN python3 /opt/paddlex_offline_prepare.py
 
 # Copy handler
 COPY /src/handler.py /src/handler.py
+
+# ---- copy PaddleOCR-VL pipeline config ----
+COPY src/pipeline_config_fastdeploy.yaml /home/paddleocr/pipeline_config_fastdeploy.yaml
+
 CMD ["python3", "/src/handler.py"]

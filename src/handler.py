@@ -4,14 +4,18 @@ import tempfile
 import os
 from paddlex import create_pipeline
 from typing import List, Dict, Any
-
+import yaml
 # Initialize logger
 log = runpod.RunPodLogger()
 
 # Initialize pipeline at module level
 log.info("Booting PaddleOCR-VL pipeline...")
 try:
-    pipeline = create_pipeline("PaddleOCR-VL", config="/home/paddleocr/pipeline_config_fastdeploy.yaml")
+    with open("/home/paddleocr/pipeline_config_fastdeploy.yaml", "r") as f:
+        cfg = yaml.safe_load(f)
+
+    pipeline = create_pipeline("PaddleOCR-VL", config=cfg)
+
     log.info("Pipeline ready.")
 except Exception as e:
     log.error(f"Failed to initialize pipeline: {str(e)}")
