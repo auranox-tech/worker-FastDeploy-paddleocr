@@ -44,9 +44,6 @@ RUN python3 -m pip install --no-cache-dir https://paddle-whl.bj.bcebos.com/night
 
 ENV DISABLE_MODEL_SOURCE_CHECK=True
 
-# ---- install PaddleX serving ----
-RUN paddlex --install serving || (pip list && python -c "import paddlex; print(paddlex.__version__)" && exit 1)
-
 
 # ---- environment variables for offline cache ----
 ENV HOME=/home/paddleocr
